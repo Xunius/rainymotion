@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+*.swp
+
 # Distribution / packaging
 .Python
 env/
@@ -100,8 +102,8 @@ ENV/
 # mypy
 .mypy_cache/
 
-# VScode project settings 
-.vscode 
+# VScode project settings
+.vscode
 
 # Pycharm
 .idea/

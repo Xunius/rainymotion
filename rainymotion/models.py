@@ -11,7 +11,7 @@ from __future__ import print_function
 
 import cv2
 import numpy as np
-import wradlib.ipol as ipol
+#import wradlib.ipol as ipol
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 from scipy.ndimage import map_coordinates
 import skimage.transform as sktf
@@ -483,7 +483,8 @@ def _fill_holes(of_instance, threshold=0):
     trg = np.vstack((coord_target_i.ravel(), coord_target_j.ravel())).T
 
     # create an object
-    interpolator = ipol.Idw(src, trg)
+    #interpolator = ipol.Idw(src, trg)
+    interpolator = LinearNDInterpolator(src, trg.ravel(), fill_value=0)
 
     #
     delta_x_target = interpolator(delta_x_source.ravel())
@@ -517,7 +518,12 @@ def _calculate_of(data_instance,
     if method == "Farneback":
         of_instance = cv2.optflow.createOptFlow_Farneback()
     elif method == "DIS":
-        of_instance = cv2.optflow.createOptFlow_DIS()
+        try:
+            of_instance = cv2.optflow.createOptFlow_DIS()
+        except AttributeError:
+            # for newer versions of opencv:
+            # see https://github.com/hydrogo/rainymotion/issues/15
+            of_instance = cv2.DISOpticalFlow_create()
     elif method == "DeepFlow":
         of_instance = cv2.optflow.createOptFlow_DeepFlow()
     elif method == "PCAFlow":
@@ -620,8 +626,9 @@ def _interpolator(points, coord_source, coord_target, method="idw"):
         interpolator = LinearNDInterpolator(src, points.ravel(), fill_value=0)
         points_interpolated = interpolator(trg)
     elif method == "idw":
-        interpolator = ipol.Idw(src, trg)
-        points_interpolated = interpolator(points.ravel())
+        raise Exception("method <idw> is not supported now.")
+        #interpolator = ipol.Idw(src, trg)
+        #points_interpolated = interpolator(points.ravel())
 
     # reshape output
     points_interpolated = points_interpolated.reshape(points.shape)
